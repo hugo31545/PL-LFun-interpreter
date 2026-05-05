@@ -3,12 +3,10 @@
 -- LFun — Linguagem Funcional
 -- ============================================================
 
--- A. Expressões aritméticas
+-- A. Expressões aritméticas e booleanas
 3 + 4;
 10 - 2 * 3;
 (8 + 2) * 5;
-
--- A. Expressões booleanas
 3 < 5;
 10 == 7;
 (4 + 1) == 5;
@@ -23,10 +21,7 @@ let altura : Int = 5;
 let areaRect : Int = largura * altura;
 areaRect;
 
-let teste : Bool = altura < largura;
-teste;
-
--- C. Funções
+-- C. Funções simples
 fun inc : Int -> Int;
 let inc x = x + 1;
 inc(5);
@@ -35,39 +30,18 @@ fun dobro : Int -> Int;
 let dobro n = n * 2;
 dobro(7);
 
-fun ePositivo : Int -> Bool;
-let ePositivo n = n > 0;
-ePositivo(3);
-ePositivo(-2);
-
--- D. Condicional
+-- D. Condicional e When (Int/Bool)
 fun absoluto : Int -> Int;
 let absoluto n = if n < 0 then 0 - n else n;
 absoluto(-5);
-absoluto(8);
 
--- D. When — seleção de casos
 fun eZero : Int -> Bool;
 let eZero n =
   when (n) is
     0 -> true;
     _ -> false;
   end;
-
 eZero(0);
-eZero(3);
-
-fun avalia : Int -> Bool;
-let avalia x =
-  when (x) is
-    -1, 1 -> true;
-    0     -> false;
-    _     -> true;
-  end;
-
-avalia(-1);
-avalia(0);
-avalia(2);
 
 fun boolToInt : Bool -> Int;
 let boolToInt b =
@@ -75,14 +49,53 @@ let boolToInt b =
     true  -> 1;
     false -> 0;
   end;
-
 boolToInt(true);
-boolToInt(false);
 
--- Operadores booleanos combinados
-let r1 : Bool = true && false;
-r1;
-let r2 : Bool = true || false;
-r2;
-let r3 : Bool = !true;
-r3;
+-- E. Recursividade
+fun fatorial : Int -> Int;
+let fatorial n = 
+    if n == 0 then 1 
+    else n * fatorial(n - 1);
+
+fatorial(5);
+fatorial(6);
+
+-- F. Tipo Char
+let grade : Char = 'A';
+fun describeGrade : Char -> String;
+let describeGrade g =
+    when g is
+        'A' -> "Excelente";
+        'B' -> "Bom";
+        'C' -> "Suficiente";
+        _   -> "Reprovado";
+    end;
+
+describeGrade('A');
+describeGrade('B');
+describeGrade('F');
+
+-- G. Tipo String e Concatenação
+let saudacao : String = "Ola, ";
+let nome : String = "Mundo";
+let mensagem : String = saudacao + nome;
+mensagem;
+
+fun welcome : String -> String;
+let welcome n = "Bem-vindo, " + n + "!";
+welcome("Jose");
+
+-- H. Quando com Strings
+fun checkSecret : String -> Bool;
+let checkSecret s =
+    when s is
+        "lfun2026" -> true;
+        _          -> false;
+    end;
+
+checkSecret("errado");
+checkSecret("lfun2026");
+
+-- I. Operadores Lógicos
+let logicTest : Bool = (true || false) && (!false);
+logicTest;
