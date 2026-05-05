@@ -1,0 +1,88 @@
+-- ============================================================
+-- Ficheiro de teste: entrada.lf
+-- LFun — Linguagem Funcional
+-- ============================================================
+
+-- A. Expressões aritméticas
+3 + 4;
+10 - 2 * 3;
+(8 + 2) * 5;
+
+-- A. Expressões booleanas
+3 < 5;
+10 == 7;
+(4 + 1) == 5;
+
+-- B. Definições de valores
+let base : Int = 10;
+let ativo : Bool = true;
+let area : Int = 4 * 5;
+
+let largura : Int = 8;
+let altura : Int = 5;
+let areaRect : Int = largura * altura;
+areaRect;
+
+let teste : Bool = altura < largura;
+teste;
+
+-- C. Funções
+fun inc : Int -> Int;
+let inc x = x + 1;
+inc(5);
+
+fun dobro : Int -> Int;
+let dobro n = n * 2;
+dobro(7);
+
+fun ePositivo : Int -> Bool;
+let ePositivo n = n > 0;
+ePositivo(3);
+ePositivo(-2);
+
+-- D. Condicional
+fun absoluto : Int -> Int;
+let absoluto n = if n < 0 then 0 - n else n;
+absoluto(-5);
+absoluto(8);
+
+-- D. When — seleção de casos
+fun eZero : Int -> Bool;
+let eZero n =
+  when (n) is
+    0 -> true;
+    _ -> false;
+  end;
+
+eZero(0);
+eZero(3);
+
+fun avalia : Int -> Bool;
+let avalia x =
+  when (x) is
+    -1, 1 -> true;
+    0     -> false;
+    _     -> true;
+  end;
+
+avalia(-1);
+avalia(0);
+avalia(2);
+
+fun boolToInt : Bool -> Int;
+let boolToInt b =
+  when b is
+    true  -> 1;
+    false -> 0;
+  end;
+
+boolToInt(true);
+boolToInt(false);
+
+-- Operadores booleanos combinados
+let r1 : Bool = true && false;
+r1;
+let r2 : Bool = true || false;
+r2;
+let r3 : Bool = !true;
+r3;

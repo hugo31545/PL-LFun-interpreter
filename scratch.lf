@@ -1,0 +1,3 @@
+fun inc : Int -> Int;
+let inc x = x + 1;
+inc(5);
