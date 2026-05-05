@@ -8,11 +8,11 @@
 lfun/
 ├── lexer.py        # Analisador léxico (PLY lex)
 ├── parser.py       # Analisador sintático (PLY yacc)
-├── ast_nodes.py    # Nós da Árvore de Sintaxe Abstrata (AST)
 ├── semantic.py     # Análise semântica + verificação de tipos
-├── interpreter.py  # Avaliador / interpretador da AST
+├── interpreter.py  # Avaliador / interpretador da AST (Baseado em Tuplas)
 ├── main.py         # Ponto de entrada (REPL + ficheiros .lf)
 ├── entrada.lf      # Ficheiro de teste principal
+├── TUTORIAL.md     # Guia de utilização e exemplos
 └── teste_erro.lf   # Teste de deteção de erros semânticos
 ```
 
@@ -28,6 +28,8 @@ python main.py entrada.lf
 python main.py
 ```
 
+---
+
 ## Funcionalidades Implementadas
 
 ### A. Expressões
@@ -36,72 +38,67 @@ python main.py
 - Parênteses para agrupar
 - Unário negativo (`-expr`)
 
-### B. Definições
-```
+### B. Novos Tipos e Literais
+- **Char**: Literais como `'a'`, `'B'`, etc.
+- **String**: Literais como `"olá"`. Suporta concatenação com `+`.
+
+### C. Definições e Funções
+```lfun
 let base : Int = 10;
 let ativo : Bool = true;
-let area : Int = largura * altura;
-```
 
-### C. Funções
-```
 fun inc : Int -> Int;
 let inc x = x + 1;
 inc(5);   -- resultado: 6  tipo: Int
 ```
 
-### D. Condicional e seleção de casos
-```
--- if/then/else
-let absoluto n = if n < 0 then 0 - n else n;
-
--- when ... is ... end
-let eZero n =
-  when (n) is
-    0 -> true;
-    _ -> false;
-  end;
+### D. Recursividade
+O interpretador suporta funções recursivas através de *recursive binding* no ambiente da closure:
+```lfun
+fun fat : Int -> Int;
+let fat n = if n == 0 then 1 else n * fat(n - 1);
 ```
 
-### E. Comentários
-- Linha única: `-- comentário`
-- Multi-linha: `{- comentário -}`
+### E. Condicional e Seleção de Casos
+- **if/then/else** para lógica condicional.
+- **when ... is ... end** para pattern matching em `Int`, `Bool`, `Char` e `String`.
+
+---
 
 ## Análise Semântica
 
 O analisador semântico verifica:
-- Tipos nas definições `let` correspondem à expressão
-- Tipos dos argumentos nas chamadas de funções
-- Tipos dos dois ramos do `if` são compatíveis
-- Todos os casos do `when` produzem o mesmo tipo
-- Operadores aritméticos só aceitam `Int`
-- Operadores de comparação `<`, `<=`, `>`, `>=` só aceitam `Int`
-- Operadores lógicos `&&`, `||`, `!` só aceitam `Bool`
+- Tipos nas definições `let` correspondem à expressão.
+- Tipos dos argumentos nas chamadas de funções.
+- Suporte a recursividade (função declarada antes de ser definida).
+- Compatibilidade de tipos em operações aritméticas, lógicas e de comparação.
+- Concatenação de strings (`String + String`).
 
-### Exemplo de erro detetado
-```
-let valor : Int = true;
--- Error: Type mismatch in 'let valor': declared Int, got Bool
-```
+---
 
-## AST — Nós Principais
+## Representação da AST (Tuplas)
 
-| Nó         | Descrição                          |
-|------------|------------------------------------|
-| `Num`      | Literal inteiro                    |
-| `Bool`     | Literal booleano                   |
-| `Var`      | Referência a variável              |
-| `BinOp`    | Operação binária                   |
-| `UnaryOp`  | Operação unária (`-`, `!`)         |
-| `IfExpr`   | Expressão condicional              |
-| `WhenExpr` | Seleção de casos por padrões       |
-| `FunCall`  | Chamada de função                  |
-| `FunDecl`  | Declaração de assinatura de função |
-| `LetValue` | Definição de valor                 |
-| `LetFun`   | Definição de função                |
+A AST foi simplificada de classes para **tuplas**, tornando o processamento mais leve e a comparação de tipos mais direta:
+
+| Tag          | Descrição                          |
+|--------------|------------------------------------|
+| `Num`        | Literal inteiro                    |
+| `Bool`       | Literal booleano                   |
+| `Char`       | Literal de caractere               |
+| `String`     | Literal de cadeia de caracteres    |
+| `Var`        | Referência a variável              |
+| `BinOp`      | Operação binária                   |
+| `UnaryOp`    | Operação unária (`-`, `!`)         |
+| `If`         | Expressão condicional              |
+| `When`       | Seleção de casos por padrões       |
+| `FunCall`    | Chamada de função                  |
+| `FunDecl`    | Declaração de assinatura de função |
+| `LetValue`   | Definição de valor                 |
+| `LetFun`     | Definição de função                |
+
+---
 
 ## Dependências
 
 - Python 3.8+
 - PLY (`pip install ply`)
-# PL-LFun-interpreter
