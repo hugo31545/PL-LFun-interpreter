@@ -1,6 +1,6 @@
 # Tutorial: Como usar o Intérprete LFun
 
-Bem-vindo ao tutorial da linguagem **LFun** (Linguagem Funcional). Este guia explica como executar o intérprete e utilizar as suas principais funcionalidades.
+Bem-vindo ao tutorial da linguagem **LFun** (Linguagem Funcional). Este guia explica como executar o intérprete e utilizar as suas principais funcionalidades (versão básica).
 
 ## 1. Como Executar
 
@@ -24,7 +24,7 @@ python main.py seu_ficheiro.lf
 ## 2. Sintaxe Básica
 
 ### Expressões Aritméticas e Booleanas
-Pode realizar cálculos e comparações básicas:
+Pode realizar cálculos e comparações básicas entre inteiros e booleanos:
 ```lfun
 10 + 5 * 2;         -- resultado: 20
 (10 + 5) * 2;       -- resultado: 30
@@ -33,7 +33,7 @@ Pode realizar cálculos e comparações básicas:
 ```
 
 ### Definição de Valores
-Use `let` para definir constantes com tipo explícito:
+Use `let` para definir constantes com tipo explícito (`Int` ou `Bool`):
 ```lfun
 let x : Int = 42;
 let ativo : Bool = true;
@@ -41,48 +41,24 @@ let ativo : Bool = true;
 
 ---
 
-## 3. Funções e Recursividade
+## 3. Funções
 
 ### Definindo Funções
 As funções requerem uma assinatura de tipo (`fun`) seguida da definição (`let`):
 ```lfun
-fun dobro : Int -> Int;
-let dobro n = n * 2;
+fun inc : Int -> Int;
+let inc x = x + 1;
 
-dobro(5);           -- resultado: 10
+inc(5);           -- resultado: 6
 ```
 
-### Funções Recursivas
-O LFun suporta recursividade. Certifique-se de que a assinatura de tipo está correta:
-```lfun
-fun fat : Int -> Int;
-let fat n = if n == 0 then 1 else n * fat(n - 1);
-
-fat(5);             -- resultado: 120
-```
+Note que nesta versão o suporte a recursividade direta e tipos complexos como Strings/Chars não está ativo.
 
 ---
 
-## 4. Novos Tipos: Char e String
+## 4. Seleção de Casos (Expression `when`)
 
-### Char (Caracteres)
-Representado por aspas simples:
-```lfun
-let letra : Char = 'A';
-```
-
-### String (Cadeias de Caracteres)
-Representado por aspas duplas. Suporta concatenação com o operador `+`:
-```lfun
-let nome : String = "LFun";
-let msg : String = "Ola, " + nome;
-```
-
----
-
-## 5. Seleção de Casos (Expression `when`)
-
-O comando `when` permite fazer "pattern matching" em diversos tipos:
+O comando `when` permite fazer "pattern matching" em valores `Int` e `Bool`:
 
 ### Exemplo com Int
 ```lfun
@@ -94,21 +70,20 @@ let eZero n =
   end;
 ```
 
-### Exemplo com Char e String
+### Exemplo com Bool
 ```lfun
-fun nota : Char -> String;
-let nota c =
-  when c is
-    'A' -> "Excelente";
-    'B' -> "Bom";
-    _   -> "Outra";
+fun inverter : Bool -> Bool;
+let inverter b =
+  when b is
+    true  -> false;
+    false -> true;
   end;
 ```
 
 ---
 
-## 6. Dicas Úteis
+## 5. Dicas Úteis
 - Todas as instruções de topo devem terminar com `;`.
 - Comentários de linha começam com `--`.
 - Comentários de bloco são delimitados por `{-` e `-}`.
-- O intérprete realiza verificação semântica (tipagem) antes da execução.
+- O intérprete realiza verificação semântica antes da execução.
