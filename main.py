@@ -14,15 +14,13 @@ from lexer import lexer
 from parser import parse
 from semantic import TypeChecker, SemanticError
 from interpreter import Interpreter, format_value
+from ast_nodes import ExprStmt, TypeInt, TypeBool, TypeFun
 
 
 def type_str(t):
-    tag = t[0]
-    if tag == 'TypeInt':  return "Int"
-    if tag == 'TypeBool': return "Bool"
-    if tag == 'TypeChar': return "Char"
-    if tag == 'TypeString': return "String"
-    if tag == 'TypeFun':  return f"{type_str(t[1])} -> {type_str(t[2])}"
+    if isinstance(t, TypeInt):  return "Int"
+    if isinstance(t, TypeBool): return "Bool"
+    if isinstance(t, TypeFun):  return f"{type_str(t.param_type)} -> {type_str(t.return_type)}"
     return "?"
 
 
@@ -32,12 +30,11 @@ def run_source(source, checker, interp):
     checker.check_program(ast)
 
     output = []
-    # ast is ('Program', stmts)
-    for stmt in ast[1]:
-        if stmt[0] == 'ExprStmt':
+    for stmt in ast.stmts:
+        if isinstance(stmt, ExprStmt):
             # Determine type before evaluating
             try:
-                typ = checker.infer(stmt[1])
+                typ = checker.infer(stmt.expr)
             except Exception:
                 typ = None
 
@@ -107,9 +104,6 @@ def repl():
                     # else keep buffering
                 except SemanticError as e:
                     print(f"Type error: {e}")
-                    buf = []
-                except Exception as e:
-                    print(f"Runtime error: {e}")
                     buf = []
                 else:
                     buf = []

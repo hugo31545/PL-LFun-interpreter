@@ -14,14 +14,11 @@ reserved = {
     'false' : 'FALSE',
     'Int'   : 'TINT',
     'Bool'  : 'TBOOL',
-    'Char'  : 'TCHAR',
-    'String': 'TSTRING',
 }
 
 tokens = [
     'ID',
     'NUMBER',
-    'CHAR', 'STRING',
     'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'MOD',
     'EQ', 'NEQ', 'LT', 'LE', 'GT', 'GE',
     'AND', 'OR', 'NOT',
@@ -59,16 +56,6 @@ t_UNDERSCORE = r'_'
 def t_NUMBER(t):
     r'\d+'
     t.value = int(t.value)
-    return t
-
-def t_STRING(t):
-    r'\"([^\\\n]|(\\.))*?\"'
-    t.value = t.value[1:-1]
-    return t
-
-def t_CHAR(t):
-    r'\'([^\\\n]|(\\.))\''
-    t.value = t.value[1:-1]
     return t
 
 def t_ID(t):

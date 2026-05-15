@@ -1,7 +1,10 @@
 """
 Interpreter for LFun language.
-Walks the AST (tuple-based) and evaluates expressions.
+Walks the AST and evaluates expressions.
 """
+
+from ast_nodes import *
+
 
 class RuntimeError_(Exception):
     pass
@@ -39,76 +42,51 @@ class Interpreter:
         self.env = Environment()
 
     def run_program(self, program):
-        # program is ('Program', stmts)
         results = []
-        for stmt in program[1]:
+        for stmt in program.stmts:
             r = self.run_stmt(stmt)
             if r is not None:
                 results.append(r)
         return results
 
     def run_stmt(self, stmt):
-        tag = stmt[0]
-        if tag == 'FunDecl':
+        if isinstance(stmt, FunDecl):
             # Just a type signature, no runtime action needed
             return None
 
-        if tag == 'LetValue':
-            # ('LetValue', name, type, expr)
-            val = self.eval(stmt[3], self.env)
-            self.env.define(stmt[1], val)
+        if isinstance(stmt, LetValue):
+            val = self.eval(stmt.expr, self.env)
+            self.env.define(stmt.name, val)
             return None
 
-        if tag == 'LetFun':
-            # ('LetFun', name, param, expr)
-            name, param, body = stmt[1], stmt[2], stmt[3]
-            # To support recursion, the closure's environment must contain the function itself.
-            # We create a new environment scope for the closure.
-            closure_env = Environment(self.env)
-            closure = Closure(param, body, closure_env)
-            closure_env.define(name, closure) # Recursive binding
-            self.env.define(name, closure)
+        if isinstance(stmt, LetFun):
+            closure = Closure(stmt.param, stmt.expr, self.env)
+            self.env.define(stmt.name, closure)
             return None
 
-        if tag == 'ExprStmt':
-            # ('ExprStmt', expr)
-            return self.eval(stmt[1], self.env)
+        if isinstance(stmt, ExprStmt):
+            return self.eval(stmt.expr, self.env)
 
     def eval(self, expr, env):
-        tag = expr[0]
-        
-        if tag == 'Num':
-            return expr[1]
+        if isinstance(expr, Num):
+            return expr.value
 
-        if tag == 'Bool':
-            return expr[1]
-        
-        if tag == 'Char':
-            return expr[1]
-        
-        if tag == 'String':
-            return expr[1]
+        if isinstance(expr, Bool):
+            return expr.value
 
-        if tag == 'Var':
-            return env.lookup(expr[1])
+        if isinstance(expr, Var):
+            return env.lookup(expr.name)
 
-        if tag == 'UnaryOp':
-            op, subexpr = expr[1], expr[2]
-            v = self.eval(subexpr, env)
-            if op == '-':
+        if isinstance(expr, UnaryOp):
+            v = self.eval(expr.expr, env)
+            if expr.op == '-':
                 return -v
-            if op == '!':
+            if expr.op == '!':
                 return not v
 
-        if tag == 'BinOp':
-            op, left_expr, right_expr = expr[1], expr[2], expr[3]
-            l = self.eval(left_expr, env)
-            r = self.eval(right_expr, env)
-            
-            # String concatenation support (common extra)
-            if op == '+' and isinstance(l, str) and isinstance(r, str):
-                return l + r
-                
+        if isinstance(expr, BinOp):
+            l = self.eval(expr.left, env)
+            r = self.eval(expr.right, env)
             ops = {
                 '+': lambda a, b: a + b,
                 '-': lambda a, b: a - b,
@@ -124,61 +102,48 @@ class Interpreter:
                 '&&': lambda a, b: a and b,
                 '||': lambda a, b: a or b,
             }
-            return ops[op](l, r)
+            return ops[expr.op](l, r)
 
-        if tag == 'If':
-            # ('If', cond, then_expr, else_expr)
-            cond = self.eval(expr[1], env)
+        if isinstance(expr, IfExpr):
+            cond = self.eval(expr.cond, env)
             if cond:
-                return self.eval(expr[2], env)
+                return self.eval(expr.then_expr, env)
             else:
-                return self.eval(expr[3], env)
+                return self.eval(expr.else_expr, env)
 
-        if tag == 'When':
-            # ('When', expr, cases)
-            val = self.eval(expr[1], env)
-            for patterns, result_expr in expr[2]:
+        if isinstance(expr, WhenExpr):
+            val = self.eval(expr.expr, env)
+            for patterns, result_expr in expr.cases:
                 for pat in patterns:
                     if self._match(pat, val):
                         return self.eval(result_expr, env)
             raise RuntimeError_(f"Non-exhaustive patterns in 'when' expression (value: {val})")
 
-        if tag == 'FunCall':
-            # ('FunCall', name, arg)
-            name, arg_expr = expr[1], expr[2]
-            closure = env.lookup(name)
+        if isinstance(expr, FunCall):
+            closure = env.lookup(expr.name)
             if not isinstance(closure, Closure):
-                raise RuntimeError_(f"'{name}' is not a function")
-            arg_val = self.eval(arg_expr, env)
+                raise RuntimeError_(f"'{expr.name}' is not a function")
+            arg_val = self.eval(expr.arg, env)
             new_env = Environment(closure.env)
             new_env.define(closure.param, arg_val)
             return self.eval(closure.body, new_env)
 
-        raise RuntimeError_(f"Unknown expression tag: {tag}")
+        raise RuntimeError_(f"Unknown expression node: {expr}")
 
     def _match(self, pattern, value):
-        tag = pattern[0]
-        if tag == 'PatNum':
-            return value == pattern[1]
-        if tag == 'PatNeg':
-            return value == -pattern[1]
-        if tag == 'PatBool':
-            return value == pattern[1]
-        if tag == 'PatChar':
-            return value == pattern[1]
-        if tag == 'PatString':
-            return value == pattern[1]
-        if tag == 'PatWild':
+        if isinstance(pattern, PatNum):
+            return value == pattern.value
+        if isinstance(pattern, PatNeg):
+            return value == -pattern.value
+        if isinstance(pattern, PatBool):
+            return value == pattern.value
+        if isinstance(pattern, PatWild):
             return True
         return False
 
 
-def format_value(val):
+def format_value(val, typ=None):
     """Format a value for display."""
     if isinstance(val, bool):
         return 'true' if val else 'false'
-    if isinstance(val, str) and len(val) == 1:
-        return f"'{val}'"
-    if isinstance(val, str):
-        return f'"{val}"'
     return str(val)

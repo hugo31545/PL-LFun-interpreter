@@ -1,6 +1,6 @@
 # Tutorial: Como usar o Intérprete LFun
 
-Bem-vindo ao tutorial da linguagem **LFun** (Linguagem Funcional). Este guia explica como executar o intérprete e utilizar as suas principais funcionalidades (versão básica).
+Bem-vindo ao tutorial da linguagem **LFun** (Linguagem Funcional). Este guia explica como executar o intérprete e utilizar as suas principais funcionalidades.
 
 ## 1. Como Executar
 
@@ -23,44 +23,71 @@ python main.py seu_ficheiro.lf
 
 ## 2. Sintaxe Básica
 
-### Expressões Aritméticas e Booleanas
+### A. Expressões Aritméticas e Booleanas
 Pode realizar cálculos e comparações básicas entre inteiros e booleanos:
 ```lfun
-10 + 5 * 2;         -- resultado: 20
-(10 + 5) * 2;       -- resultado: 30
-3 < 5;              -- resultado: true
-10 == 10;           -- resultado: true
+3 + 4;          -- resultado: 7   tipo: Int
+10 - 2 * 3;     -- resultado: 4   tipo: Int
+(8 + 2) * 5;    -- resultado: 50  tipo: Int
+3 < 5;          -- resultado: true  tipo: Bool
+10 == 7;        -- resultado: false tipo: Bool
 ```
 
-### Definição de Valores
+Os operadores lógicos também estão disponíveis:
+```lfun
+(true || false) && (!false);  -- resultado: true  tipo: Bool
+```
+
+### B. Definição de Valores
 Use `let` para definir constantes com tipo explícito (`Int` ou `Bool`):
 ```lfun
 let x : Int = 42;
 let ativo : Bool = true;
+let area : Int = largura * altura;
+```
+
+O analisador semântico rejeita declarações com tipo errado:
+```lfun
+let valor : Int = true;  -- Erro: Type mismatch
 ```
 
 ---
 
-## 3. Funções
+## 3. Funções (C)
 
-### Definindo Funções
 As funções requerem uma assinatura de tipo (`fun`) seguida da definição (`let`):
 ```lfun
 fun inc : Int -> Int;
 let inc x = x + 1;
 
-inc(5);           -- resultado: 6
+inc(5);   -- resultado: 6  tipo: Int
 ```
 
-Note que nesta versão o suporte a recursividade direta e tipos complexos como Strings/Chars não está ativo.
+```lfun
+fun ePositivo : Int -> Bool;
+let ePositivo n = n > 0;
+
+ePositivo(3);   -- resultado: true
+ePositivo(-2);  -- resultado: false
+```
 
 ---
 
-## 4. Seleção de Casos (Expression `when`)
+## 4. Condicional e Seleção de Casos (D)
 
-O comando `when` permite fazer "pattern matching" em valores `Int` e `Bool`:
+### if / then / else
+```lfun
+fun absoluto : Int -> Int;
+let absoluto n = if n < 0 then 0 - n else n;
 
-### Exemplo com Int
+absoluto(-5);  -- resultado: 5  tipo: Int
+absoluto(8);   -- resultado: 8  tipo: Int
+```
+
+### when / is / end (pattern matching)
+O `when` permite associar padrões a resultados diferentes.  
+Cada caso é separado por `;` e pode ter múltiplos padrões (`pat1, pat2 ->`):
+
 ```lfun
 fun eZero : Int -> Bool;
 let eZero n =
@@ -68,22 +95,49 @@ let eZero n =
     0 -> true;
     _ -> false;
   end;
+
+eZero(0);  -- resultado: true
+eZero(3);  -- resultado: false
 ```
 
-### Exemplo com Bool
 ```lfun
-fun inverter : Bool -> Bool;
-let inverter b =
+fun avalia : Int -> Bool;
+let avalia x =
+  when (x) is
+    -1, 1 -> true;   -- múltiplos padrões alternativos
+    0     -> false;
+    _     -> true;   -- wildcard (otherwise)
+  end;
+```
+
+```lfun
+fun boolToInt : Bool -> Int;
+let boolToInt b =
   when b is
-    true  -> false;
-    false -> true;
+    true  -> 1;
+    false -> 0;
   end;
 ```
 
 ---
 
-## 5. Dicas Úteis
+## 5. Comentários (E)
+
+- **Linha única:** tudo após `--` é ignorado até ao fim da linha.
+- **Multi-linha:** delimitados por `{-` e `-}`.
+
+```lfun
+-- isto é um comentário de linha
+
+{-
+  isto é um
+  comentário de bloco
+-}
+```
+
+---
+
+## 6. Dicas úteis
 - Todas as instruções de topo devem terminar com `;`.
-- Comentários de linha começam com `--`.
-- Comentários de bloco são delimitados por `{-` e `-}`.
 - O intérprete realiza verificação semântica antes da execução.
+- A precedência dos operadores segue as convenções matemáticas habituais: `*`, `/`, `%` têm prioridade sobre `+`, `-`; os operadores relacionais têm prioridade sobre os lógicos.

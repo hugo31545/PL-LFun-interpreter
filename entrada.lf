@@ -21,6 +21,10 @@ let altura : Int = 5;
 let areaRect : Int = largura * altura;
 areaRect;
 
+{- Exemplo com comparação booleana -}
+let teste : Bool = altura < largura;
+teste;
+
 -- C. Funções simples
 fun inc : Int -> Int;
 let inc x = x + 1;
@@ -30,10 +34,16 @@ fun dobro : Int -> Int;
 let dobro n = n * 2;
 dobro(7);
 
--- D. Condicional e When (Int/Bool)
+fun ePositivo : Int -> Bool;
+let ePositivo n = n > 0;
+ePositivo(3);
+ePositivo(-2);
+
+-- D. Condicional e seleção de casos
 fun absoluto : Int -> Int;
 let absoluto n = if n < 0 then 0 - n else n;
 absoluto(-5);
+absoluto(8);
 
 fun eZero : Int -> Bool;
 let eZero n =
@@ -42,6 +52,19 @@ let eZero n =
     _ -> false;
   end;
 eZero(0);
+eZero(3);
+
+fun avalia : Int -> Bool;
+let avalia x =
+  when (x) is
+    -1, 1 -> true;
+    0     -> false;
+    _     -> true;
+  end;
+avalia(-1);
+avalia(0);
+avalia(1);
+avalia(2);
 
 fun boolToInt : Bool -> Int;
 let boolToInt b =
@@ -50,52 +73,8 @@ let boolToInt b =
     false -> 0;
   end;
 boolToInt(true);
+boolToInt(false);
 
--- E. Recursividade
-fun fatorial : Int -> Int;
-let fatorial n = 
-    if n == 0 then 1 
-    else n * fatorial(n - 1);
-
-fatorial(5);
-fatorial(6);
-
--- F. Tipo Char
-let grade : Char = 'A';
-fun describeGrade : Char -> String;
-let describeGrade g =
-    when g is
-        'A' -> "Excelente";
-        'B' -> "Bom";
-        'C' -> "Suficiente";
-        _   -> "Reprovado";
-    end;
-
-describeGrade('A');
-describeGrade('B');
-describeGrade('F');
-
--- G. Tipo String e Concatenação
-let saudacao : String = "Ola, ";
-let nome : String = "Mundo";
-let mensagem : String = saudacao + nome;
-mensagem;
-
-fun welcome : String -> String;
-let welcome n = "Bem-vindo, " + n + "!";
-welcome("Jose");
-
--- H. Quando com Strings
-fun checkSecret : String -> Bool;
-let checkSecret s =
-    when s is
-        "lfun2026" -> true;
-        _          -> false;
-    end;
-
-checkSecret("errado");
-checkSecret("lfun2026");
-
--- I. Operadores Lógicos
+-- Operadores lógicos (parte das expressões booleanas)
 let logicTest : Bool = (true || false) && (!false);
 logicTest;
