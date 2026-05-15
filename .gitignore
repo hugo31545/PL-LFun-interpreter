@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDEs
+.vscode/
+.idea/
+
+# Virtual environments
+venv/
+env/
+.env/
+.venv/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# PLY generated files
+parsetab.py
+parser.out
+
+# Scratch files
+scratch.lf
